@@ -7,6 +7,7 @@
 #include "UDPReceiver.h"
 #include "helper.h"
 #include "Decoder.h"
+#include "Marquee.h"
 
 U8G2_SSD1306_128X64_NONAME_F_4W_SW_SPI u8g2(U8G2_R0, /* clock,scl=*/ 14, /* data,sda=*/ 13, /* (NOT USED) cs=*/ U8X8_PIN_NONE, /* dc=*/ 4, /* reset=*/ 5);
 //Working with I2C seems not to work, also when soldering the jumpers on the display
@@ -16,6 +17,9 @@ const String ssid     = WIFI_SSID;
 const char* password = WIFI_KEY;
 
 trackInformation_t currentTrack;
+Marquee marqueeTitle(SCREEN_WIDTH);
+Marquee marqueeArtist(SCREEN_WIDTH);
+Marquee marqueeAlbum(SCREEN_WIDTH);
 
 Decoder decoder("secret");
 
@@ -23,6 +27,9 @@ UDPReceiver udp(47000, [&](uint8_t* buffer, size_t size, String remoteAddress, u
   Serial.println("Received UDP package from " + remoteAddress + ":" + remotePort);
 
   currentTrack = decoder.decode(buffer, size);
+  marqueeTitle.reset().setWidthOfText(u8g2.getStrWidth(currentTrack.title.c_str()));
+  marqueeArtist.reset().setWidthOfText(u8g2.getStrWidth(currentTrack.artist.c_str()));
+  marqueeAlbum.reset().setWidthOfText(u8g2.getStrWidth(currentTrack.album.c_str()));
 
   Serial.println("Playing '" + currentTrack.title + "' from '" + currentTrack.artist + "' on album '" + currentTrack.album + "'");
 });
@@ -60,11 +67,16 @@ void setup(void) {
 
 void loop(void) {
   u8g2.clearBuffer();
+
+  u8g2.setFont(u8g2_font_profont12_tf);
+
+  u8g2.drawStr(-marqueeTitle.move(), 8, currentTrack.title.c_str());
+  u8g2.drawStr(-marqueeArtist.move(), 28, currentTrack.artist.c_str());
+  u8g2.drawStr(-marqueeAlbum.move(), 48, currentTrack.album.c_str());
+
   u8g2.sendBuffer();
 
   udp.check();
-
-  delay(10);
-
   yield();
+  delay(10);
 }
