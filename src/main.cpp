@@ -15,14 +15,16 @@ U8G2_SSD1306_128X64_NONAME_F_4W_SW_SPI u8g2(U8G2_R0, /* clock,scl=*/ 14, /* data
 const String ssid     = WIFI_SSID;
 const char* password = WIFI_KEY;
 
+trackInformation_t currentTrack;
+
 Decoder decoder("secret");
 
 UDPReceiver udp(47000, [&](uint8_t* buffer, size_t size, String remoteAddress, uint16_t remotePort) -> void {
   Serial.println("Received UDP package from " + remoteAddress + ":" + remotePort);
 
-  trackInformation_t info = decoder.decode(buffer, size);
+  currentTrack decoder.decode(buffer, size);
 
-  Serial.println("Playing '" + info.title + "' from '" + info.artist + "' on album '" + info.album + "'");
+  Serial.println("Playing '" + currentTrack.title + "' from '" + currentTrack.artist + "' on album '" + currentTrack.album + "'");
 });
 
 void setup(void) {

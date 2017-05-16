@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "AES.h"
 #include <ArduinoMD5.h>
+#include "helper.h"
 
 struct trackInformation_t {
   String artist;
@@ -22,12 +23,15 @@ private:
   bool validateHMAC(uint8_t* buffer, size_t length, uint8_t* hmac) {
     uint8_t* bufferAndKey = (uint8_t*) malloc(length + this->keyStr.length());
     memcpy(bufferAndKey, buffer, length);
-    this->keyStr.getBytes(bufferAndKey + length, this->keyStr.length());
+    this->keyStr.getBytes(bufferAndKey + length, this->keyStr.length() + 1); // TODO Check this is a bug that needs us to + 1 altough length() should be just fine
+
+    // Serial.println("Key");
+    // printHex(bufferAndKey, length + this->keyStr.length());
 
     uint8_t* hash = (uint8_t*) MD5::make_hash((char*) bufferAndKey, length + this->keyStr.length());
 
-    Serial.println("Memcmp");
-    Serial.println(memcmp(hash, hmac, 16));
+    // Serial.println("Memcmp");
+    // Serial.println(memcmp(hash, hmac, 16));
 
     return memcmp(hash, hmac, 16) == 0;
   };
@@ -48,7 +52,10 @@ public:
 
     if (!(this->validateHMAC(decrypted, length - 16 - 16, hmac))) {
       Serial.println("HMAC of received message invalid!");
-      // return trackInformation_t{};
+      return trackInformation_t{"INVALID HMAC", "INVALID HMAC", "INVALID HMAC"};
+    }
+    else {
+      Serial.println("HMAC of received message ok.");
     }
 
     String decryptedStr = String((char*) decrypted);
