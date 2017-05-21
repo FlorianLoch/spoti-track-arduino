@@ -45,7 +45,7 @@ UDPReceiver udp(47000, [&](uint8_t* buffer, size_t size, String remoteAddress, u
 void setup(void) {
   Serial.begin(9600);
   u8g2.begin();
-
+  u8g2.setContrast(DISPLAY_CONTRAST);
   u8g2.setFont(FONT);
 
   u8g2.clearBuffer();

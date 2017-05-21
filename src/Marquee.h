@@ -29,11 +29,18 @@ private:
 public:
   Marquee(uint16_t screenWidth, uint8_t fontWidth, String text)
   : screenWidth{screenWidth},
-    fontWidth{fontWidth},
-    text{text}
+    fontWidth{fontWidth}
   {
-    diff = text.length() * fontWidth - screenWidth;
     dontScroll = text.length() * fontWidth < screenWidth;
+
+    if (dontScroll) {
+      this->text = text;
+    }
+    else {
+      this->text = " " + text + " ";
+    }
+
+    diff = this->text.length() * fontWidth - screenWidth;
   };
 
   Marquee(uint16_t screenWidth, uint8_t fontWidth) {
