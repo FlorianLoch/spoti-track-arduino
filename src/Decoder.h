@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include "AES.h"
-#include <ArduinoMD5.h>
+#include <MD5.h>
 #include "helper.h"
 
 struct trackInformation_t {
@@ -37,7 +37,7 @@ private:
   };
 public:
   Decoder(String key) : keyStr{key} {
-    this->key = (uint8_t*) MD5::make_hash(key.c_str());
+    this->key = (uint8_t*) MD5::make_hash((char*) key.c_str());
   };
 
   trackInformation_t decode(uint8_t* encoded, size_t length) {
